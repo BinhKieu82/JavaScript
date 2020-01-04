@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <input id="new-item" type="text" />
+    <button id="add-btn">Add</button>
+    <ul id="todo-list">
+
+    </ul>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+        var items;
+        var input = document.getElementById('new-item');
+        var url = "http://localhost:3000/todo/";
+
+        async function getItem() {
+            await axios.get(url).then(res => {return items = res.data}).then(() => {
+                render(items)}); 
+                input.value = '';
+        }
+        getItem();
+
+        async function addItem() {            
+            //var input = document.getElementById('new-item');           
+            await axios.post(url, {content: input.value});
+            getItem();            
+        }        
+        var addBtn = document.getElementById('add-btn');
+        addBtn.addEventListener('click', addItem); 
+
+        async function delItem() { 
+            id = parseInt(event.target.dataset.value);  
+            console.log(id);   
+            await axios.delete(url + id);        
+            getItem();
+            render(items);
+        }
+
+        async function editItem() { 
+            id = parseInt(event.target.dataset.value);
+            console.log(id);   
+            await axios.put(url + id, {content: input.value});        
+            getItem();
+            render(items);
+            input.value = '';
+        }
+
+        function render(items) {
+            var htmlList = document.getElementById("todo-list");
+            var content = items.map(function(item, index) {
+                return '<li>' + item.content  + ' ' + '<button onclick = "editItem()", data-value ="' + item.id + '">Edit</button><button onClick ="delItem()", data-value ="' + item.id + '">Delete</button>'  + '</li>' ;
+            });
+            htmlList.innerHTML = content.join('');
+        }
+    </script>
+</body>
+</html>
